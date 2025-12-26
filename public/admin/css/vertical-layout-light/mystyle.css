@@ -1,0 +1,45 @@
+a.btnsmall{
+    padding:7px;
+} 
+.btnsmall i{
+    margin-left: .5rem;
+    font-size: 1rem;
+    line-height: 1;
+}
+.createtable{
+    flex: 100%;
+    max-width: 100%;
+}
+.form-sample{}
+.form-group label
+{
+ text-align:end;
+}
+.submitbutton{
+  /* text-align:center; */
+}
+.submit i{
+     margin-left: .5rem;
+    font-size: 1rem;
+    line-height: 1;
+}
+button.restoexel{
+   
+}
+@media (max-width: 332px){
+    button.restoexel{
+        padding:4px;
+  }
+  }
+  
+  .head{
+    color: brown;
+  }.card .card-title {
+    color: #2a701d;
+    margin-bottom: 1.2rem;
+    text-transform: capitalize;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+/* ************************************************* */
