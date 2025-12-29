@@ -13,34 +13,24 @@ class FeesCollectionController extends Controller
     //
 public function index(Request $request)
 {
-    if ($request->ajax()) {
+    $query = FeesCollection::with(['student.course', 'student.scheme']);
 
-        $collections = FeesCollection::with(['student.course','student.scheme'])
-            ->select('fees_collections.*');
+    // 🔍 Normal Search
+    if ($request->filled('search')) {
+        $search = $request->search;
 
-        return DataTables::of($collections)
-            ->addIndexColumn()
-            ->addColumn('student', function ($row) {
-                return $row->student->name ?? '-';
-            })
-            ->addColumn('voucher', fn($row) => $row->voucher_no)
-            ->addColumn('date', fn($row) => $row->date)
-            ->addColumn('amount', fn($row) => number_format($row->amount, 2))
-            ->addColumn('action', function ($row) {
-                return '
-                <form action="'.route('fees.destroy',$row->id).'" method="POST" style="display:inline">
-                    '.csrf_field().method_field("DELETE").'
-                    <button class="btn btn-danger btn-sm"
-                        onclick="return confirm(\'Delete?\')">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </form>';
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+        $query->where(function ($q) use ($search) {
+            $q->where('voucher_no', 'like', "%{$search}%")
+              ->orWhereHas('student', function ($q2) use ($search) {
+                  $q2->where('name', 'like', "%{$search}%");
+              });
+        });
     }
 
-    return view('fees.index');
+    // 📄 Pagination
+    $collections = $query->orderBy('id', 'desc')->paginate(10);
+
+    return view('fees.index', compact('collections'));
 }
 
    public function create()
@@ -81,5 +71,38 @@ public function index(Request $request)
     return response()->json([
         'paid_fees' => $paid
     ]);
+}
+
+
+public function summary($studentId, $type)
+{
+    $student = Student::findOrFail($studentId);
+
+    // Total fee by type
+    $total = match ($type) {
+        'course_fee'   => $student->course_fee,
+        'exam_fee'     => $student->exam_fee,
+        'material_fee' => $student->material_fee,
+        'voucher_fee'  => $student->voucher_fee,
+        'others_fee'   => $student->others_fee,
+        default        => 0,
+    };
+
+    // Paid fee by type
+    $paid = FeesCollection::where('student_id', $studentId)
+        ->where('fees_type', $type)
+        ->sum('amount');
+
+    return response()->json([
+        'total'   => $total,
+        'paid'    => $paid,
+        'balance' => max($total - $paid, 0),
+    ]);
+}
+public function history($studentId)
+{
+    return FeesCollection::where('student_id', $studentId)
+        ->orderBy('date', 'desc')
+        ->get(['date','amount','fees_type']);
 }
 }

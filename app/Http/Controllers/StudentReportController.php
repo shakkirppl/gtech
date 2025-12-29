@@ -32,19 +32,21 @@ class StudentReportController extends Controller
     /* =========================
        Student Status Wise Report
     ========================= */
-    public function statusWise(Request $request)
-    {
-        $students = Student::with('course','scheme');
+public function statusWise(Request $request)
+{
+    $students = Student::with(['course', 'scheme'])
+        ->withSum('fees_collections as paid_amount', 'amount');
 
-        if ($request->filled('status')) {
-            $students->where('status', $request->status);
-        }
-
-        $students = $students->orderBy('name')
-            ->paginate(25)
-            ->withQueryString();
-
-        return view('students.report-status', compact('students'))
-            ->with($request->only('status'));
+    if ($request->filled('status')) {
+        $students->where('status', $request->status);
     }
+
+    $students = $students
+        ->orderBy('name')
+        ->paginate(25)
+        ->withQueryString();
+
+    return view('students.report-status', compact('students'))
+        ->with($request->only('status'));
+}
 }

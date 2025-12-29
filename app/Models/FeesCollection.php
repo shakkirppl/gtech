@@ -13,7 +13,8 @@ class FeesCollection extends Model
         'student_id',
         'voucher_no',
         'date',
-        'amount'
+        'amount',
+        'fees_type'
     ];
 
     public function student()

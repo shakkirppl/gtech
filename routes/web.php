@@ -80,13 +80,17 @@ Route::delete('fees/{id}', [FeesCollectionController::class,'destroy'])->name('f
 Route::get('fees/paid/{student}', [FeesCollectionController::class, 'getPaidFees'])
      ->name('fees.paid');
 
+Route::get('/fees/history/{student}', [FeesCollectionController::class, 'history'])
+    ->name('fees.history');
 
+Route::get('/fees/summary/{student}/{type}', [FeesCollectionController::class, 'summary'])
+    ->name('fees.summary');
 
 Route::get('/fees-report', [FeesReportController::class,'index'])
     ->name('fees.report');
 
-Route::get('/students/search', [FeesReportController::class,'searchStudents'])
-    ->name('students.search');
+// Route::get('/students/search', [FeesReportController::class,'searchStudents'])
+//     ->name('students.search');
 Route::get('/fees-report/student-wise', [FeesReportController::class, 'studentWise'])
     ->name('fees.report.student');
 
@@ -98,6 +102,13 @@ Route::get('/student-report/status-wise', [StudentReportController::class, 'stat
     
 Route::patch('/students/{student}/status', [StudentController::class, 'updateStatus'])
     ->name('students.status');
+Route::get('/students/{id}/details', [StudentController::class, 'details'])
+    ->name('students.details');
+
+    Route::get(
+    '/fees-report/student/{id}',
+    [FeesReportController::class, 'studentView']
+)->name('fees.report.student.view');
 });
 
 require __DIR__.'/auth.php';

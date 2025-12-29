@@ -16,8 +16,9 @@
 <label>Status</label>
 <select name="status" class="form-control">
 <option value="">All</option>
-<option value="1" {{ request('status')=='1'?'selected':'' }}>Active</option>
-<option value="0" {{ request('status')=='0'?'selected':'' }}>Inactive</option>
+<option value="Present" {{ request('status')=='Present'?'selected':'' }}>Present</option>
+<option value="Leave" {{ request('status')=='Leave'?'selected':'' }}>Leave</option>
+<option value="Completed" {{ request('status')=='Completed'?'selected':'' }}>Completed</option>
 </select>
 </div>
 
@@ -39,47 +40,45 @@
 <table class="table table-bordered" id="student-table">
 <thead class="table-light">
 <tr>
-<th>#</th>
-<th>Reg No</th>
-<th>Name</th>
-<th>Course</th>
-<th>Admission Date</th>
-<th>Status</th>
-<th>Action</th>
+    <th>Sl No</th>
+    <th>Reg No</th>
+    <th>Name</th>
+    <th>Course</th>
+    <th>DOJ</th>
+    <th class="text-end">Total</th>
+    <th class="text-end">Paid</th>
+    <th class="text-end">Balance</th>
+    <th>Status</th>
+
 </tr>
 </thead>
 <tbody>
-@forelse($students as $key=>$s)
+@forelse($students as $key => $s)
+@php
+    $paid = $s->paid_amount ?? 0;
+    $balance = $s->total_fees - $paid;
+@endphp
 <tr>
-<td>{{ $students->firstItem() + $key }}</td>
-<td>{{ $s->reg_no }}</td>
-<td>{{ $s->name }}</td>
-<td>{{ $s->course->name }}</td>
-<td>{{ $s->admission_date->format('d-m-Y') }}</td>
-<td class="text-center">
-    @if($s->status)
-        <span class="badge bg-success">Active</span>
-    @else
-        <span class="badge bg-danger">Inactive</span>
-    @endif
-</td>
+    <td>{{ $students->firstItem() + $key }}</td>
+    <td>{{ $s->reg_no }}</td>
+    <td>{{ $s->name }}</td>
+    <td>{{ $s->course->name ?? '-' }}</td>
+    <td>{{ $s->admission_date->format('d-m-Y') }}</td>
 
-<td class="text-center">
-<form action="{{ route('students.status', $s->id) }}"
-      method="POST"
-      onsubmit="return confirm('Change student status?')">
-    @csrf
-    @method('PATCH')
+    <td class="text-end">{{ number_format($s->total_fees, 2) }}</td>
+    <td class="text-end">{{ number_format($paid, 2) }}</td>
+    <td class="text-end">{{ number_format($balance, 2) }}</td>
 
-    <button class="btn btn-sm {{ $s->status ? 'btn-danger' : 'btn-success' }}">
-        {{ $s->status ? 'Deactivate' : 'Activate' }}
-    </button>
-</form>
+   <td class="text-center">
+    <span class="badge bg-{{ $s->status_badge }}">
+        {{ ucfirst($s->status) }}
+    </span>
 </td>
+   
 </tr>
 @empty
 <tr>
-<td colspan="6" class="text-center">No records found</td>
+    <td colspan="10" class="text-center">No records found</td>
 </tr>
 @endforelse
 </tbody>

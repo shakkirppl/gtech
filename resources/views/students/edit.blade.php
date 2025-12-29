@@ -17,55 +17,94 @@
 <div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<form action="{{ route('students.update',$student->id) }}" method="POST">
+<form action="{{ route('students.update', $student->id) }}" method="POST">
 @csrf
 @method('PUT')
-    <label class="form-label">Registration No</label>
+
+<label class="form-label">Registration No</label>
 <input class="form-control mb-2" name="reg_no"
-value="{{ old('reg_no',$student->reg_no) }}" placeholder="Reg No">
-    <label class="form-label">Student Name</label>
+value="{{ old('reg_no', $student->reg_no) }}">
+
+<label class="form-label">Student Name</label>
 <input class="form-control mb-2" name="name"
-value="{{ old('name',$student->name) }}" placeholder="Name">
+value="{{ old('name', $student->name) }}">
 
-    <label class="form-label">Address</label>
-<textarea class="form-control mb-2" name="address"
-placeholder="Address">{{ old('address',$student->address) }}</textarea>
+<label class="form-label">Address</label>
+<textarea class="form-control mb-2" name="address">{{ old('address', $student->address) }}</textarea>
 
- <label class="form-label">Phone</label>
+<label class="form-label">Phone</label>
 <input class="form-control mb-2" name="phone"
-value="{{ old('phone',$student->phone) }}" placeholder="Phone">
+value="{{ old('phone', $student->phone) }}">
 
-    <label class="form-label">Qualification</label>
+<label class="form-label">Qualification</label>
 <input class="form-control mb-2" name="qualification"
-value="{{ old('qualification',$student->qualification) }}" placeholder="Qualification">
+value="{{ old('qualification', $student->qualification) }}">
 
-    <label class="form-label">Admission Date</label>
-<input type="date" class="form-control mb-2" name="admission_date"
-value="{{ old('admission_date',$student->admission_date) }}">
+<label class="form-label">Admission Date</label>
+<input type="date"
+       class="form-control mb-2"
+       name="admission_date"
+       value="{{ old('admission_date', optional($student->admission_date)->format('Y-m-d')) }}">
 
-    <label class="form-label">Course</label>
+<label class="form-label">Course</label>
 <select class="form-control mb-2" name="course_id">
 @foreach($courses as $course)
 <option value="{{ $course->id }}"
-{{ $student->course_id==$course->id?'selected':'' }}>
+{{ old('course_id', $student->course_id) == $course->id ? 'selected' : '' }}>
 {{ $course->name }}
 </option>
 @endforeach
 </select>
 
-    <label class="form-label">Scheme</label>
+<label class="form-label">Scheme</label>
 <select class="form-control mb-3" name="scheme_id">
 @foreach($schemes as $scheme)
 <option value="{{ $scheme->id }}"
-{{ $student->scheme_id==$scheme->id?'selected':'' }}>
+{{ old('scheme_id', $student->scheme_id) == $scheme->id ? 'selected' : '' }}>
 {{ $scheme->name }}
 </option>
 @endforeach
 </select>
 
-    <label class="form-label">Total Fees</label>
-<input class="form-control mb-3" name="total_fees"
-value="{{ old('total_fees',$student->total_fees) }}" placeholder="Total Fees">
+<hr>
+
+{{-- Fees Section --}}
+<label class="form-label">Course Fees</label>
+<input class="form-control mb-2 fee-input" id="course_fee" name="course_fee"
+value="{{ old('course_fee', $student->course_fee) }}">
+
+<label class="form-label">Exam Fees</label>
+<input class="form-control mb-2 fee-input" id="exam_fees" name="exam_fees"
+value="{{ old('exam_fees', $student->exam_fee) }}">
+
+<label class="form-label">Material Fees</label>
+<input class="form-control mb-2 fee-input" id="material_fee" name="material_fee"
+value="{{ old('material_fee', $student->material_fee) }}">
+
+<label class="form-label">Voucher Fees</label>
+<input class="form-control mb-2 fee-input" id="voucher_fee" name="voucher_fee"
+value="{{ old('voucher_fee', $student->voucher_fee) }}">
+
+<label class="form-label">Other Fees</label>
+<input class="form-control mb-3 fee-input" id="others_fees" name="others_fees"
+value="{{ old('others_fees', $student->others_fee) }}">
+
+<label class="form-label">Total Fees</label>
+<input class="form-control mb-3" id="total_fees" name="total_fees"
+value="{{ old('total_fees', $student->total_fees) }}" readonly>
+
+<div class="mb-2">
+<label class="form-label">Status</label>
+<select class="form-control" name="status">
+<option value="">Select Status</option>
+<option value="Present" {{ old('status', $student->status) == 'Present' ? 'selected' : '' }}>Present</option>
+<option value="Leave" {{ old('status', $student->status) == 'Leave' ? 'selected' : '' }}>Leave</option>
+<option value="Completed" {{ old('status', $student->status) == 'Completed' ? 'selected' : '' }}>Completed</option>
+</select>
+@error('status')
+<small class="text-danger">{{ $message }}</small>
+@enderror
+</div>
 
 <div class="d-flex gap-2">
 <button class="btn btn-primary">Update</button>
@@ -83,5 +122,26 @@ value="{{ old('total_fees',$student->total_fees) }}" placeholder="Total Fees">
 </div>
 </div>
 </div>
+
+{{-- Auto Calculate Total Fees --}}
+<script>
+function calculateTotalFees() {
+    let total = 0;
+    document.querySelectorAll('.fee-input').forEach(input => {
+        let value = parseFloat(input.value);
+        if (!isNaN(value)) {
+            total += value;
+        }
+    });
+    document.getElementById('total_fees').value = total.toFixed(2);
+}
+
+document.querySelectorAll('.fee-input').forEach(input => {
+    input.addEventListener('input', calculateTotalFees);
+});
+
+// calculate on page load (important for edit)
+calculateTotalFees();
+</script>
 
 @endsection

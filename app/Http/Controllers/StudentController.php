@@ -11,38 +11,27 @@ use Exception;
 use Yajra\DataTables\DataTables;
 class StudentController extends Controller
 {
-   public function index(Request $request)
+  public function index(Request $request)
 {
-    if ($request->ajax()) {
+    $query = Student::with(['course', 'scheme']);
 
-        $students = Student::with(['course','scheme'])
-            ->select('students.*');
+    // 🔍 Normal Search
+    if ($request->filled('search')) {
+        $search = $request->search;
 
-        return DataTables::of($students)
-            ->addIndexColumn()
-            ->addColumn('course', function ($row) {
-                return $row->course->name ?? '-';
-            })
-            ->addColumn('scheme', function ($row) {
-                return $row->scheme->name ?? '-';
-            })
-            ->addColumn('action', function ($row) {
-                return '
-                <a href="'.route('students.edit',$row->id).'" class="btn btn-warning btn-sm">
-                    <i class="fa fa-edit"></i>
-                </a>
-                <form action="'.route('students.destroy',$row->id).'" method="POST" style="display:inline">
-                    '.csrf_field().method_field("DELETE").'
-                    <button class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure?\')">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </form>';
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%$search%")
+              ->orWhere('reg_no', 'like', "%$search%")
+              ->orWhereHas('course', function ($q2) use ($search) {
+                  $q2->where('name', 'like', "%$search%");
+              });
+        });
     }
 
-    return view('students.index');
+    // 📄 Pagination
+    $students = $query->orderBy('id', 'desc')->paginate(10);
+
+    return view('students.index', compact('students'));
 }
 
     public function create()
@@ -66,18 +55,17 @@ class StudentController extends Controller
             'admission_date'  => 'required|date',
             'course_id'       => 'required|exists:courses,id',
             'scheme_id'       => 'required|exists:schemes,id',
-            'total_fees'      => 'required|numeric|min:0'
+            'total_fees'      => 'required|numeric|min:0',
+            'status'          => 'required|in:Present,Leave,Completed',
         ]);
 
         DB::beginTransaction();
 
         try {
             // Safe SL No generation
-            $lastSl = Student::orderBy('id','desc')->lockForUpdate()->first();
-            $nextNo = $lastSl ? intval(substr($lastSl->sl_no,2)) + 1 : 1;
+
 
             Student::create([
-                'sl_no'           => 'SL'.str_pad($nextNo, 4, '0', STR_PAD_LEFT),
                 'reg_no'          => $request->reg_no,
                 'name'            => $request->name,
                 'address'         => $request->address,
@@ -86,8 +74,13 @@ class StudentController extends Controller
                 'admission_date'  => $request->admission_date,
                 'course_id'       => $request->course_id,
                 'scheme_id'       => $request->scheme_id,
+                'course_fee'      => $request->course_fee,
+                'material_fee'    => $request->material_fee,
+                'voucher_fee'      => $request->voucher_fee,
+                'others_fee'      => $request->others_fees,
+                'exam_fee'      => $request->exam_fees,
                 'total_fees'      => $request->total_fees,
-                'status'          => 1
+                'status'         => $request->status,
             ]);
 
             DB::commit();
@@ -97,7 +90,9 @@ class StudentController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
-
+  return response()->json([
+        'error' => $e->getMessage()
+    ], 500);
             return back()
                 ->withInput()
                 ->with('error', 'Student creation failed');
@@ -121,7 +116,8 @@ class StudentController extends Controller
         $request->validate([
             'reg_no' => 'required|unique:students,reg_no,' . $student->id,
             'name'   => 'required|string|max:255',
-            'phone'  => 'required|string|max:20'
+            'phone'  => 'required|string|max:20',
+            'status' => 'required|in:Present,Leave,Completed',
         ]);
 
         try {
@@ -134,7 +130,12 @@ class StudentController extends Controller
                 'admission_date'=> $request->admission_date,
                 'course_id'     => $request->course_id,
                 'scheme_id'     => $request->scheme_id,
-                'total_fees'    => $request->total_fees,
+                'course_fee'      => $request->course_fee,
+                'material_fee'    => $request->material_fee,
+                'voucher_fee'      => $request->voucher_fee,
+                'others_fee'      => $request->others_fees,
+                'exam_fee'      => $request->exam_fees,
+                'total_fees'      => $request->total_fees,
                 'status'        => $request->status ?? $student->status
             ]);
 
@@ -142,6 +143,9 @@ class StudentController extends Controller
                 ->with('success', 'Student updated successfully');
 
         } catch (Exception $e) {
+              return response()->json([
+        'error' => $e->getMessage()
+    ], 500);
             return back()
                 ->withInput()
                 ->with('error', 'Student update failed');
@@ -160,22 +164,24 @@ class StudentController extends Controller
     }
 
     public function search(Request $request)
-    {
-        $q = $request->q;
+{
+    $q = $request->q;
 
-        return Student::select('id','sl_no','reg_no','name','phone')
-            ->where('name', 'like', "%$q%")
-            ->orWhere('reg_no', 'like', "%$q%")
-            ->orWhere('phone', 'like', "%$q%")
-            ->limit(20) // VERY IMPORTANT
-            ->get()
-            ->map(function ($s) {
-                return [
-                    'id'   => $s->id,
-                    'text' => "{$s->sl_no} | {$s->reg_no} | {$s->name} | {$s->phone}"
-                ];
-            });
-    }
+    return Student::select('id','reg_no','name','phone')
+        ->where(function ($query) use ($q) {
+            $query->where('name', 'like', "%{$q}%")
+                  ->orWhere('reg_no', 'like', "%{$q}%")
+                  ->orWhere('phone', 'like', "%{$q}%");
+        })
+        ->limit(20)
+        ->get()
+        ->map(function ($s) {
+            return [
+                'id'   => $s->id,
+                'text' => "{$s->id} | {$s->reg_no} | {$s->name} | {$s->phone}"
+            ];
+        });
+}
 
     public function show($id)
     {
@@ -190,5 +196,29 @@ class StudentController extends Controller
     $student->save();
 
     return back()->with('success', 'Student status updated successfully.');
+}
+
+public function details(Student $student, Request $request){
+    $type = $request->fees_type ?? 'All';
+    $query = $student->fees_collections();
+    if($type !== 'All') $query->where('fees_type', $type);
+    $fees_collections = $query->get();
+
+    $paid = $student->fees_collections()->sum('amount');
+    $balance = $student->total_fees - $paid;
+
+    return response()->json([
+        'id' => $student->id,
+        'reg_no' => $student->reg_no,
+        'name' => $student->name,
+        'admission_date' => $student->admission_date,
+        'course' => $student->course,
+        'scheme' => $student->scheme,
+        'total_fees' => $student->total_fees,
+        'paid' => $paid,
+        'balance' => $balance,
+        'status' => $student->status,
+        'fees_collections' => $fees_collections
+    ]);
 }
 }

@@ -8,69 +8,96 @@
 <div class="card">
 <div class="card-body">
 
-<div class="d-flex justify-content-between">
-<h4>Students</h4>
-<a href="{{ route('students.create') }}" class="btn btn-success btn-sm">
-<i class="fa fa-plus"></i> Add Student
-</a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Students</h4>
+    <a href="{{ route('students.create') }}" class="btn btn-success btn-sm">
+        <i class="fa fa-plus"></i> Add Student
+    </a>
 </div>
 
+{{-- Alerts --}}
 @if(session('success'))
-<div class="alert alert-success mt-3">{{ session('success') }}</div>
+<div class="alert alert-success">{{ session('success') }}</div>
 @endif
 
 @if(session('error'))
-<div class="alert alert-danger mt-3">{{ session('error') }}</div>
+<div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<div class="table-responsive mt-3">
-<table class="table table-bordered" id="students-table">
+{{-- 🔍 Search --}}
+<form method="GET" action="{{ route('students.index') }}" class="mb-3">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <input type="text" name="search" value="{{ request('search') }}"
+                   class="form-control" placeholder="Search Name / Reg No / Course">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Search</button>
+        </div>
+        <div class="col-md-2">
+            <a href="{{ route('students.index') }}" class="btn btn-secondary w-100">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="table-responsive">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>#</th>
-            <th>SL No</th>
             <th>Reg No</th>
             <th>Name</th>
             <th>Course</th>
             <th>Scheme</th>
-            <th>Fees</th>
-            <th>Action</th>
+            <th>Total Fees</th>
+            <th width="120">Action</th>
         </tr>
     </thead>
+    <tbody>
+        @forelse($students as $index => $student)
+        <tr>
+            <td>{{ $students->firstItem() + $index }}</td>
+            <td>{{ $student->reg_no }}</td>
+            <td>{{ $student->name }}</td>
+            <td>{{ $student->course->name ?? '-' }}</td>
+            <td>{{ $student->scheme->name ?? '-' }}</td>
+            <td>{{ number_format($student->total_fees, 2) }}</td>
+            <td>
+                <a href="{{ route('students.edit', $student->id) }}"
+                   class="btn btn-warning btn-sm">
+                    <i class="fa fa-edit"></i>
+                </a>
+
+                <form action="{{ route('students.destroy', $student->id) }}"
+                      method="POST" style="display:inline">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure?')">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="7" class="text-center">No records found</td>
+        </tr>
+        @endforelse
+    </tbody>
 </table>
 </div>
 
-
-
-</div>
-</div>
-
-</div>
-</div>
+{{-- Pagination --}}
+<div class="mt-3">
+    {{ $students->withQueryString()->links() }}
 </div>
 
-@endsection
-@section('script')
-<script>
-$(function () {
-$('#students-table').DataTable({
-    processing: true,
-    serverSide: true,
-    ajax: {
-        url: "{{ route('students.index') }}",
-        type: "GET"
-    },
-    columns: [
-        { data: 'DT_RowIndex', orderable:false, searchable:false },
-        { data: 'sl_no' },
-        { data: 'reg_no' },
-        { data: 'name' },
-        { data: 'course', name: 'course.name' },
-        { data: 'scheme', name: 'scheme.name' },
-        { data: 'total_fees' },
-        { data: 'action', orderable:false, searchable:false }
-    ]
-});
-});
-</script>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
 @endsection
