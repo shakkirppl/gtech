@@ -74,12 +74,12 @@ class StudentController extends Controller
                 'admission_date'  => $request->admission_date,
                 'course_id'       => $request->course_id,
                 'scheme_id'       => $request->scheme_id,
-                'course_fee'      => $request->course_fee,
-                'material_fee'    => $request->material_fee,
-                'voucher_fee'      => $request->voucher_fee,
-                'others_fee'      => $request->others_fees,
-                'exam_fee'      => $request->exam_fees,
-                'total_fees'      => $request->total_fees,
+                'course_fee'      => $request->course_fee ?? 0,
+                'material_fee'    => $request->material_fee ?? 0,
+                'voucher_fee'      => $request->voucher_fee ?? 0,
+                'others_fee'      => $request->others_fees ?? 0,
+                'exam_fee'      => $request->exam_fees ?? 0,
+                'total_fees'      => $request->total_fees ?? 0,
                 'status'         => $request->status,
             ]);
 
@@ -130,12 +130,12 @@ class StudentController extends Controller
                 'admission_date'=> $request->admission_date,
                 'course_id'     => $request->course_id,
                 'scheme_id'     => $request->scheme_id,
-                'course_fee'      => $request->course_fee,
-                'material_fee'    => $request->material_fee,
-                'voucher_fee'      => $request->voucher_fee,
-                'others_fee'      => $request->others_fees,
-                'exam_fee'      => $request->exam_fees,
-                'total_fees'      => $request->total_fees,
+                'course_fee'      => $request->course_fee ?? 0,
+                'material_fee'    => $request->material_fee ?? 0,
+                'voucher_fee'      => $request->voucher_fee ?? 0,
+                'others_fee'      => $request->others_fees ?? 0,
+                'exam_fee'      => $request->exam_fees ?? 0,
+                'total_fees'      => $request->total_fees ?? 0,
                 'status'        => $request->status ?? $student->status
             ]);
 

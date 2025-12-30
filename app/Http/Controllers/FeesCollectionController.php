@@ -47,7 +47,9 @@ public function index(Request $request)
             'student_id' => 'required',
             'voucher_no' => 'required|unique:fees_collections',
             'date'       => 'required|date',
-            'amount'     => 'required|numeric|min:1'
+            'amount'     => 'required|numeric|min:1',
+           'fees_type' => 'required|in:course_fee,exam_fee,material_fee,voucher_fee,others_fee',
+
         ]);
 
         FeesCollection::create($request->all());
