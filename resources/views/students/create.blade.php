@@ -146,6 +146,10 @@
     @error('status')<small class="text-danger">{{ $message }}</small>@enderror
 </div>
 
+<div class="mb-3">
+    <label class="form-label">Narration</label>
+    <textarea class="form-control" id="narration" name="narration" rows="3"></textarea>
+</div>
 <div class="d-flex gap-2">
     <button class="btn btn-primary">Submit</button>
     <a href="{{ route('students.index') }}" class="btn btn-secondary">Back</a>
