@@ -16,13 +16,21 @@
 
 <div class="row">
     <div class="col-md-6">
+         <p><strong>Sl No:</strong> {{ $student->id }}</p>
         <p><strong>Reg No:</strong> {{ $student->reg_no }}</p>
         <p><strong>Name:</strong> {{ $student->name }}</p>
         <p><strong>DOJ:</strong> {{ $student->admission_date }}</p>
         <p><strong>Course:</strong> {{ $student->course->name ?? '-' }}</p>
         <p><strong>Scheme:</strong> {{ $student->scheme->name ?? '-' }}</p>
+         <p><strong>Mobile No:</strong> {{ $student->phone ?? '-' }}</p>
+         <p><strong>Narration:</strong> {{ $student->narration ?? '-' }}</p>
     </div>
     <div class="col-md-6">
+        <p><strong>Course Fee:</strong> {{ number_format($student->course_fee,2) }}</p>
+        <p><strong>Exam Fee:</strong> {{ number_format($student->exam_fee,2) }}</p>
+        <p><strong>Material Fee:</strong> {{ number_format($student->material_fee,2) }}</p>
+        <p><strong>Voucher Fee:</strong> {{ number_format($student->voucher_fee,2) }}</p>
+         <p><strong>Others Fee:</strong> {{ number_format($student->others_fee,2) }}</p>
         <p><strong>Total Fee:</strong> {{ number_format($student->total_fees,2) }}</p>
         <p><strong>Paid:</strong> {{ number_format($paid,2) }}</p>
         <p><strong>Balance:</strong> {{ number_format($balance,2) }}</p>

@@ -141,6 +141,7 @@
         <option value="Present" {{ old('status')=='Present'?'selected':'' }}>Present</option>
         <option value="Leave" {{ old('status')=='Leave'?'selected':'' }}>Leave</option>
         <option value="Completed" {{ old('status')=='Completed'?'selected':'' }}>Completed</option>
+        <option value="Cancelled" {{ old('status')=='Cancelled'?'selected':'' }}>Cancelled</option>
     </select>
     @error('status')<small class="text-danger">{{ $message }}</small>@enderror
 </div>

@@ -100,6 +100,7 @@ value="{{ old('total_fees', $student->total_fees) }}" readonly>
 <option value="Present" {{ old('status', $student->status) == 'Present' ? 'selected' : '' }}>Present</option>
 <option value="Leave" {{ old('status', $student->status) == 'Leave' ? 'selected' : '' }}>Leave</option>
 <option value="Completed" {{ old('status', $student->status) == 'Completed' ? 'selected' : '' }}>Completed</option>
+<option value="Cancelled" {{ old('status', $student->status) == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
 </select>
 @error('status')
 <small class="text-danger">{{ $message }}</small>

@@ -44,7 +44,7 @@
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>#</th>
+            <th>SlNo</th>
             <th>Reg No</th>
             <th>Name</th>
             <th>Course</th>
@@ -56,7 +56,7 @@
     <tbody>
         @forelse($students as $index => $student)
         <tr>
-            <td>{{ $students->firstItem() + $index }}</td>
+            <td>{{ $student->id }}</td>
             <td>{{ $student->reg_no }}</td>
             <td>{{ $student->name }}</td>
             <td>{{ $student->course->name ?? '-' }}</td>

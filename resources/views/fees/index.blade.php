@@ -59,6 +59,9 @@
     <td>{{ \Carbon\Carbon::parse($row->date)->format('d-m-Y') }}</td>
     <td>{{ number_format($row->amount, 2) }}</td>
     <td>
+        <a href="{{ route('fees.edit', $row->id) }}" class="btn btn-sm btn-warning">
+    <i class="fa fa-edit"></i>
+</a>
         <form action="{{ route('fees.destroy', $row->id) }}"
               method="POST"
               style="display:inline">
@@ -69,6 +72,7 @@
                 <i class="fa fa-trash"></i>
             </button>
         </form>
+
     </td>
 </tr>
 @empty

@@ -12,16 +12,32 @@
 
 <form method="GET" class="row g-2 mb-4">
 
-<div class="col-md-4">
+<div class="col-md-2">
 <label>Status</label>
 <select name="status" class="form-control">
 <option value="">All</option>
 <option value="Present" {{ request('status')=='Present'?'selected':'' }}>Present</option>
 <option value="Leave" {{ request('status')=='Leave'?'selected':'' }}>Leave</option>
 <option value="Completed" {{ request('status')=='Completed'?'selected':'' }}>Completed</option>
+<option value="Cancelled" {{ request('status')=='Cancelled'?'selected':'' }}>Cancelled</option>
 </select>
 </div>
 
+<div class="col-md-3">
+<label>From Date</label>
+<input type="date"
+       name="from_date"
+       class="form-control"
+       value="{{ request('from_date') }}">
+</div>
+
+<div class="col-md-3">
+<label>To Date</label>
+<input type="date"
+       name="to_date"
+       class="form-control"
+       value="{{ request('to_date') }}">
+</div>
 <div class="col-md-2 align-self-end">
 <button class="btn btn-primary btn-sm w-100">
 <i class="fa fa-search"></i> Search
@@ -44,6 +60,7 @@
     <th>Reg No</th>
     <th>Name</th>
     <th>Course</th>
+    <th>Scheme</th>
     <th>DOJ</th>
     <th class="text-end">Total</th>
     <th class="text-end">Paid</th>
@@ -59,10 +76,11 @@
     $balance = $s->total_fees - $paid;
 @endphp
 <tr>
-    <td>{{ $students->firstItem() + $key }}</td>
+    <td>{{ $s->id }}</td>
     <td>{{ $s->reg_no }}</td>
     <td>{{ $s->name }}</td>
     <td>{{ $s->course->name ?? '-' }}</td>
+     <td>{{ $s->scheme->name ?? '-' }}</td>
     <td>{{ $s->admission_date->format('d-m-Y') }}</td>
 
     <td class="text-end">{{ number_format($s->total_fees, 2) }}</td>
@@ -93,9 +111,6 @@
 </div>
 </div>
 </div>
-@endsection
-
-@push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 function exportExcel() {
@@ -104,4 +119,5 @@ function exportExcel() {
     XLSX.writeFile(wb, "student_status_wise.xlsx");
 }
 </script>
-@endpush
+@endsection
+

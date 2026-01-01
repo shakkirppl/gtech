@@ -39,14 +39,19 @@
     </div>
 
 </form>
-
+<div class="col-md-2 align-self-end">
+<button type="button" id="exportBtn" class="btn btn-success btn-sm w-100">
+    <i class="fa fa-file-excel-o"></i> Export
+</button>
+</div>
 @if(isset($reports))
 <div class="table-responsive">
-<table class="table table-bordered">
+<table class="table table-bordered" id="student-table">
     <thead class="table-light">
         <tr>
-            <th>#</th>
+            <th>Sl No</th>
             <th>Name</th>
+            <th>Mobile</th>
             <th>DOJ</th>
             <th>Course</th>
             <th>Scheme</th>
@@ -58,8 +63,9 @@
     <tbody>
         @forelse($reports as $key => $r)
         <tr>
-            <td>{{ $reports->firstItem() + $key }}</td>
+            <td>{{ $r->id }}</td>
             <td>{{ $r->student->name ?? '-' }}</td>
+            <td>{{ $r->student->phone ?? '-' }}</td>
            <td>
     {{ $r->student->admission_date ? \Carbon\Carbon::parse($r->student->admission_date)->format('d M Y') : '-' }}
 </td>
@@ -96,4 +102,29 @@
 </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const exportBtn = document.getElementById("exportBtn");
+    if (!exportBtn) return;
+
+    exportBtn.addEventListener("click", function () {
+
+        const table = document.getElementById("student-table");
+        if (!table) {
+            alert("No data available to export");
+            return;
+        }
+
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Fees Report" });
+        XLSX.writeFile(wb, "fees_report.xlsx");
+    });
+
+});
+</script>
 @endsection
+
+
+

@@ -80,6 +80,9 @@ Route::delete('fees/{id}', [FeesCollectionController::class,'destroy'])->name('f
 Route::get('fees/paid/{student}', [FeesCollectionController::class, 'getPaidFees'])
      ->name('fees.paid');
 
+     Route::get('fees/{id}/edit', [FeesCollectionController::class,'edit'])->name('fees.edit');
+Route::put('fees/{id}', [FeesCollectionController::class,'update'])->name('fees.update');
+
 Route::get('/fees/history/{student}', [FeesCollectionController::class, 'history'])
     ->name('fees.history');
 

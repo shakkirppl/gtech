@@ -37,6 +37,7 @@ class Student extends Model
         'voucher_fee',
         'others_fee',
         'total_fees',
+        'narration',
         'status'
     ];
 
@@ -122,6 +123,7 @@ public function fees_collections()
             self::STATUS_PRESENT   => 'success',
             self::STATUS_LEAVE     => 'warning',
             self::STATUS_COMPLETED => 'primary',
+             self::STATUS_CANCELLED => 'danger',   // 👈 added
             default                => 'secondary',
         };
     }

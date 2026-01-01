@@ -25,14 +25,19 @@
         </div>
     </div>
 </form>
-
+<div class="col-md-2 align-self-end">
+<button type="button" id="exportBtn" class="btn btn-success btn-sm w-100">
+    <i class="fa fa-file-excel-o"></i> Export
+</button>
+</div>
 <div class="table-responsive">
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped" id="student-table">
     <thead>
         <tr>
             <th>Sl No</th>
             <th>Reg No</th>
             <th>Name</th>
+             <th>Mobile</th>
             <th>DOJ</th>
             <th>Course</th>
             <th>Scheme</th>
@@ -50,9 +55,10 @@
             $balance = $student->total_fees - $paid;
         @endphp
         <tr>
-            <td>{{ $students->firstItem() + $index }}</td>
+            <td>{{ $student->id }}</td>
             <td>{{ $student->reg_no }}</td>
             <td>{{ $student->name }}</td>
+              <td>{{ $student->phone }}</td>
             <td>{{ \Carbon\Carbon::parse($student->admission_date)->format('Y-m-d') }}</td>
             <td>{{ $student->course->name ?? '-' }}</td>
             <td>{{ $student->scheme->name ?? '-' }}</td>
@@ -130,6 +136,7 @@
 @endsection
 
 @section('script')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 $(document).ready(function(){
 
@@ -171,6 +178,29 @@ $(document).ready(function(){
         $('#filterFeesType').off('change').on('change', function(){
             loadStudent(id, $(this).val());
         });
+    });
+
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const exportBtn = document.getElementById("exportBtn");
+    if (!exportBtn) return;
+
+    exportBtn.addEventListener("click", function () {
+
+        const table = document.getElementById("student-table");
+        if (!table) {
+            alert("No data available to export");
+            return;
+        }
+
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Fees Report" });
+        XLSX.writeFile(wb, "fees_report.xlsx");
     });
 
 });

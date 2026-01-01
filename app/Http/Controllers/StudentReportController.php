@@ -41,6 +41,13 @@ public function statusWise(Request $request)
         $students->where('status', $request->status);
     }
 
+      if ($request->filled('from_date') && $request->filled('to_date')) {
+            $students->whereBetween('admission_date', [
+                $request->from_date,
+                $request->to_date
+            ]);
+        }
+
     $students = $students
         ->orderBy('name')
         ->paginate(25)

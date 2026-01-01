@@ -81,6 +81,7 @@ class StudentController extends Controller
                 'exam_fee'      => $request->exam_fees ?? 0,
                 'total_fees'      => $request->total_fees ?? 0,
                 'status'         => $request->status,
+                'narration'      => $request->narration ?? null,
             ]);
 
             DB::commit();
@@ -136,7 +137,8 @@ class StudentController extends Controller
                 'others_fee'      => $request->others_fees ?? 0,
                 'exam_fee'      => $request->exam_fees ?? 0,
                 'total_fees'      => $request->total_fees ?? 0,
-                'status'        => $request->status ?? $student->status
+                'status'        => $request->status ?? $student->status,
+                'narration'      => $request->narration ?? null,
             ]);
 
             return redirect()->route('students.index')

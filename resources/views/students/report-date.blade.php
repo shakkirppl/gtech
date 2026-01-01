@@ -35,48 +35,50 @@
 </div>
 
 </form>
-
+<div class="col-md-2 align-self-end">
+<button type="button" onclick="exportExcel()" class="btn btn-success btn-sm w-100">
+<i class="fa fa-file-excel-o"></i> Export
+</button>
+</div>
 <div class="table-responsive">
 <table class="table table-bordered" id="student-table">
 <thead class="table-light">
 <tr>
-<th>#</th>
-<th>Admission Date</th>
+<th>SlNo</th>
+<th>DOJ</th>
 <th>Reg No</th>
 <th>Name</th>
 <th>Course</th>
+<th>Scheme</th>
+<th>Total Fee</th>
+<th>Paid</th>
+<th>Balance</th>
 <th>Status</th>
-<th>Action</th>
 </tr>
 </thead>
 <tbody>
 @forelse($students as $key=>$s)
+@php
+    $paid = $s->paid_amount ?? 0;
+    $balance = $s->total_fees - $paid;
+@endphp
 <tr>
-<td>{{ $students->firstItem() + $key }}</td>
+<td>{{ $s->id }}</td>
 <td>{{ $s->admission_date->format('d-m-Y') }}</td>
 <td>{{ $s->reg_no }}</td>
 <td>{{ $s->name }}</td>
 <td>{{ $s->course->name }}</td>
+ <td>{{ $s->scheme->name ?? '-' }}</td>
+    <td class="text-end">{{ number_format($s->total_fees, 2) }}</td>
+    <td class="text-end">{{ number_format($paid, 2) }}</td>
+    <td class="text-end">{{ number_format($balance, 2) }}</td>
 <td class="text-center">
-    @if($s->status)
-        <span class="badge bg-success">Active</span>
-    @else
-        <span class="badge bg-danger">Inactive</span>
-    @endif
+  <span class="badge bg-{{ $s->status_badge }}">
+        {{ ucfirst($s->status) }}
+    </span>
 </td>
 
-<td class="text-center">
-<form action="{{ route('students.status', $s->id) }}"
-      method="POST"
-      onsubmit="return confirm('Change student status?')">
-    @csrf
-    @method('PATCH')
 
-    <button class="btn btn-sm {{ $s->status ? 'btn-danger' : 'btn-success' }}">
-        {{ $s->status ? 'Deactivate' : 'Activate' }}
-    </button>
-</form>
-</td>
 </tr>
 @empty
 <tr>
@@ -95,9 +97,6 @@
 </div>
 </div>
 </div>
-@endsection
-
-@push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 function exportExcel() {
@@ -106,4 +105,5 @@ function exportExcel() {
     XLSX.writeFile(wb, "student_date_wise.xlsx");
 }
 </script>
-@endpush
+@endsection
+

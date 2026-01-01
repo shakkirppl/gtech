@@ -57,6 +57,31 @@ public function index(Request $request)
         return redirect()->route('fees.index')
             ->with('success','Fees collected successfully');
     }
+public function edit($id)
+{
+    $fee = FeesCollection::with('student.course','student.scheme')->findOrFail($id);
+
+    return view('fees.edit', compact('fee'));
+}
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'date'       => 'required|date',
+        'amount'     => 'required|numeric|min:1',
+        'fees_type'  => 'required|in:course_fee,exam_fee,material_fee,voucher_fee,others_fee',
+    ]);
+
+    $fee = FeesCollection::findOrFail($id);
+
+    $fee->update([
+        'date'      => $request->date,
+        'amount'    => $request->amount,
+        'fees_type' => $request->fees_type,
+    ]);
+
+    return redirect()->route('fees.index')
+        ->with('success','Fees updated successfully');
+}
 
     public function destroy($id)
     {
