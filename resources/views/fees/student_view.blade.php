@@ -74,6 +74,14 @@
             <td colspan="4" class="text-center">No records found</td>
         </tr>
         @endforelse
+        <tfoot>
+    <tr>
+        <th colspan="3" class="text-end">Total</th>
+        <th class="text-end">
+            {{ number_format($totalAmount, 2) }}
+        </th>
+    </tr>
+</tfoot>
     </tbody>
 </table>
 </div>

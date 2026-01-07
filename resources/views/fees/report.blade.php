@@ -83,7 +83,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="7" class="text-end">Total</th>
+            <th colspan="8" class="text-end">Total</th>
             <th class="text-end">{{ number_format($total, 2) }}</th>
         </tr>
     </tfoot>

@@ -39,8 +39,8 @@ class StudentController extends Controller
         try {
             $courses = Course::where('status',1)->get();
             $schemes = Scheme::where('status',1)->get();
-
-            return view('students.create', compact('courses','schemes'));
+            $slNo = Student::max('id') + 1;
+            return view('students.create', compact('courses','schemes', 'slNo'));
         } catch (Exception $e) {
             return back()->with('error', 'Failed to load form');
         }

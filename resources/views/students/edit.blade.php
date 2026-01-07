@@ -21,6 +21,10 @@
 @csrf
 @method('PUT')
 
+<label class="form-label">Sl No</label>
+<input class="form-control mb-2" name="sl_no"
+value="{{ old('sl_no', $student->id) }}" readonly>
+
 <label class="form-label">Registration No</label>
 <input class="form-control mb-2" name="reg_no"
 value="{{ old('reg_no', $student->reg_no) }}">

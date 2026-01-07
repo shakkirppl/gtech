@@ -40,6 +40,11 @@
 
 <form action="{{ route('students.store') }}" method="POST">
 @csrf
+<div class="mb-2">
+    <label class="form-label">Sl No</label>
+    <input class="form-control" name="sl_no" value="{{ $slNo }}" readonly>
+    @error('sl_no')<small class="text-danger">{{ $message }}</small>@enderror
+</div>
 
 <div class="mb-2">
     <label class="form-label">Registration No</label>

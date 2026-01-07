@@ -91,6 +91,7 @@ public function studentView(Request $request, $id)
     }
 
     $feesCollections = $feesQuery->orderBy('date')->get();
+    $totalAmount = $feesCollections->sum('amount');
 
     $paid = $student->fees_collections()->sum('amount');
     $balance = $student->total_fees - $paid;
@@ -100,7 +101,8 @@ public function studentView(Request $request, $id)
         'feesCollections',
         'paid',
         'balance',
-        'feesType'
+        'feesType',
+        'totalAmount'
     ));
 }
 
