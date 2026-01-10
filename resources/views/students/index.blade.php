@@ -67,7 +67,7 @@
                    class="btn btn-warning btn-sm">
                     <i class="fa fa-edit"></i>
                 </a>
-
+@if(auth()->user()->user_type=='Admin')
                 <form action="{{ route('students.destroy', $student->id) }}"
                       method="POST" style="display:inline">
                     @csrf
@@ -77,6 +77,7 @@
                         <i class="fa fa-trash"></i>
                     </button>
                 </form>
+                @endif
             </td>
         </tr>
         @empty

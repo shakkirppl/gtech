@@ -62,6 +62,7 @@
         <a href="{{ route('fees.edit', $row->id) }}" class="btn btn-sm btn-warning">
     <i class="fa fa-edit"></i>
 </a>
+@if(auth()->user()->user_type=='Admin')
         <form action="{{ route('fees.destroy', $row->id) }}"
               method="POST"
               style="display:inline">
@@ -72,7 +73,7 @@
                 <i class="fa fa-trash"></i>
             </button>
         </form>
-
+@endif
     </td>
 </tr>
 @empty

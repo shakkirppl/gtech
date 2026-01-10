@@ -9,6 +9,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FeesCollectionController;
 use App\Http\Controllers\FeesReportController;
 use App\Http\Controllers\StudentReportController;
+use App\Http\Controllers\UserController;
 
 
 /*
@@ -112,6 +113,8 @@ Route::get('/students/{id}/details', [StudentController::class, 'details'])
     '/fees-report/student/{id}',
     [FeesReportController::class, 'studentView']
 )->name('fees.report.student.view');
+
+  Route::resource('users', UserController::class);
 });
 
 require __DIR__.'/auth.php';

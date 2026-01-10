@@ -52,7 +52,7 @@ class="btn btn-success btn-sm px-3">
 class="btn btn-warning btn-sm px-2">
 <i class="fa fa-edit"></i>
 </a>
-
+@if(auth()->user()->user_type=='Admin')
 <form action="{{ route('course.destroy',$course->id) }}" method="POST">
 @csrf
 @method('DELETE')
@@ -61,6 +61,7 @@ onclick="return confirm('Are you sure?')">
 <i class="fa fa-trash"></i>
 </button>
 </form>
+@endif
 </div>
 
 </td>
