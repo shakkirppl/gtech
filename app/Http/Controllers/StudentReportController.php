@@ -10,50 +10,136 @@ class StudentReportController extends Controller
     /* =========================
        Student Date Wise Report
     ========================= */
+    // public function dateWise(Request $request)
+    // {
+    //     $students = Student::with('course','scheme');
+
+    //     if ($request->filled('from_date') && $request->filled('to_date')) {
+    //         $students->whereBetween('admission_date', [
+    //             $request->from_date,
+    //             $request->to_date
+    //         ]);
+    //     }
+
+    //     $students = $students->orderBy('admission_date')
+    //         ->paginate(25)
+    //         ->withQueryString();
+
+    //     return view('students.report-date', compact('students'))
+    //         ->with($request->only('from_date','to_date'));
+    // }
+
     public function dateWise(Request $request)
-    {
-        $students = Student::with('course','scheme');
+{
+    $query = Student::query();
 
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $students->whereBetween('admission_date', [
-                $request->from_date,
-                $request->to_date
-            ]);
-        }
-
-        $students = $students->orderBy('admission_date')
-            ->paginate(25)
-            ->withQueryString();
-
-        return view('students.report-date', compact('students'))
-            ->with($request->only('from_date','to_date'));
+    // Date Filter
+    if ($request->filled('from_date') && $request->filled('to_date')) {
+        $query->whereBetween('admission_date', [
+            $request->from_date,
+            $request->to_date
+        ]);
     }
+
+    // 🔥 TOTAL FEE
+    $total_fee = (clone $query)->sum('total_fees');
+
+    // 🔥 TOTAL PAID (from fees_collections table)
+    $studentIds = (clone $query)->select('id');
+
+    $total_paid = \App\Models\FeesCollection::whereIn(
+        'student_id',
+        $studentIds
+    )->sum('amount');
+
+    $total_balance = $total_fee - $total_paid;
+
+    // Load students with relation + paid amount
+    $students = $query
+        ->with(['course', 'scheme'])
+        ->withSum('fees_collections as paid_amount', 'amount')
+        ->orderBy('admission_date')
+        ->paginate(25)
+        ->withQueryString();
+
+    return view('students.report-date', compact(
+        'students',
+        'total_fee',
+        'total_paid',
+        'total_balance'
+    ))->with($request->only('from_date','to_date'));
+}
+
 
     /* =========================
        Student Status Wise Report
     ========================= */
+// public function statusWise(Request $request)
+// {
+//     $students = Student::with(['course', 'scheme'])
+//         ->withSum('fees_collections as paid_amount', 'amount');
+
+//     if ($request->filled('status')) {
+//         $students->where('status', $request->status);
+//     }
+
+//       if ($request->filled('from_date') && $request->filled('to_date')) {
+//             $students->whereBetween('admission_date', [
+//                 $request->from_date,
+//                 $request->to_date
+//             ]);
+//         }
+
+//     $students = $students
+//         ->orderBy('name')
+//         ->paginate(25)
+//         ->withQueryString();
+
+//     return view('students.report-status', compact('students'))
+//         ->with($request->only('status'));
+// }
+
 public function statusWise(Request $request)
 {
-    $students = Student::with(['course', 'scheme'])
-        ->withSum('fees_collections as paid_amount', 'amount');
+    $query = Student::query();
 
+    // Filters
     if ($request->filled('status')) {
-        $students->where('status', $request->status);
+        $query->where('status', $request->status);
     }
 
-      if ($request->filled('from_date') && $request->filled('to_date')) {
-            $students->whereBetween('admission_date', [
-                $request->from_date,
-                $request->to_date
-            ]);
-        }
+    if ($request->filled('from_date') && $request->filled('to_date')) {
+        $query->whereBetween('admission_date', [
+            $request->from_date,
+            $request->to_date
+        ]);
+    }
 
-    $students = $students
+    // 🔥 TOTAL FEE (direct column)
+    $total_fee = (clone $query)->sum('total_fees');
+
+    // 🔥 TOTAL PAID (relation table)
+    $total_paid = \App\Models\FeesCollection::whereIn(
+            'student_id',
+            (clone $query)->pluck('id')
+        )->sum('amount');
+
+    $total_balance = $total_fee - $total_paid;
+
+    // Load students with relations
+    $students = $query->with(['course', 'scheme'])
+        ->withSum('fees_collections as paid_amount', 'amount')
         ->orderBy('name')
         ->paginate(25)
         ->withQueryString();
 
-    return view('students.report-status', compact('students'))
-        ->with($request->only('status'));
+    return view('students.report-status', compact(
+        'students',
+        'total_fee',
+        'total_paid',
+        'total_balance'
+    ))->with($request->only('status'));
 }
+
+
 }

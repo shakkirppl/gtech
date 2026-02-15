@@ -51,11 +51,50 @@
 </div>
 
 </form>
+@if($students->count())
+<div class="row mb-3">
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6>Total Fees</h6>
+                <h5 class="text-primary">
+                    {{ number_format($total_fee, 2) }}
+                </h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6>Total Paid</h6>
+                <h5 class="text-success">
+                    {{ number_format($total_paid, 2) }}
+                </h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6>Total Balance</h6>
+                <h5 class="text-danger">
+                    {{ number_format($total_balance, 2) }}
+                </h5>
+            </div>
+        </div>
+    </div>
+
+</div>
+@endif
 
 <div class="table-responsive">
 <table class="table table-bordered" id="student-table">
 <thead class="table-light">
 <tr>
+    <th>#</th>
     <th>Sl No</th>
     <th>Reg No</th>
     <th>Name</th>
@@ -76,6 +115,7 @@
     $balance = $s->total_fees - $paid;
 @endphp
 <tr>
+    <td>{{ $students->firstItem() + $key }}</td>
     <td>{{ $s->id }}</td>
     <td>{{ $s->reg_no }}</td>
     <td>{{ $s->name }}</td>

@@ -1,6 +1,19 @@
 @extends('layouts.layout')
 @section('content')
+<style>
+.table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+}
 
+thead th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+}
+
+</style>
 <div class="main-panel">
 <div class="content-wrapper">
 <div class="container-fluid">
@@ -48,10 +61,19 @@
 <div class="table-responsive">
 <table class="table table-bordered" id="student-table">
     <thead class="table-light">
+          <!-- Total Row at Top -->
+    <tr style="background-color:#f8f9fa; font-weight:bold;">
+        <th colspan="10" class="text-end">Total</th>
+        <th class="text-end">{{ number_format($total, 2) }}</th>
+    </tr>
+
+    <!-- Column Header Row -->
         <tr>
+            <th>#</th>
             <th>Sl No</th>
             <th>Name</th>
             <th>Mobile</th>
+            <th>Fees Date</th>
             <th>DOJ</th>
             <th>Course</th>
             <th>Scheme</th>
@@ -63,9 +85,13 @@
     <tbody>
         @forelse($reports as $key => $r)
         <tr>
+            <td>{{ $key + 1 }}</td>
             <td>{{ $r->id }}</td>
             <td>{{ $r->student->name ?? '-' }}</td>
             <td>{{ $r->student->phone ?? '-' }}</td>
+            <td>
+    {{ $r->date ? \Carbon\Carbon::parse($r->date)->format('d M Y') : '-' }}
+</td>
            <td>
     {{ $r->student->admission_date ? \Carbon\Carbon::parse($r->student->admission_date)->format('d M Y') : '-' }}
 </td>
@@ -81,12 +107,7 @@
         </tr>
         @endforelse
     </tbody>
-    <tfoot>
-        <tr>
-            <th colspan="8" class="text-end">Total</th>
-            <th class="text-end">{{ number_format($total, 2) }}</th>
-        </tr>
-    </tfoot>
+   
 </table>
 </div>
 

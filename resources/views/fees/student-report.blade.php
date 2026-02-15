@@ -34,6 +34,7 @@
 <table class="table table-bordered table-striped" id="student-table">
     <thead>
         <tr>
+            <th>#</th>
             <th>Sl No</th>
             <th>Reg No</th>
             <th>Name</th>
@@ -55,6 +56,7 @@
             $balance = $student->total_fees - $paid;
         @endphp
         <tr>
+            <td>{{ $students->firstItem() + $index }}</td>
             <td>{{ $student->id }}</td>
             <td>{{ $student->reg_no }}</td>
             <td>{{ $student->name }}</td>
