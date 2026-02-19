@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use DB;
 use Exception;
 use Yajra\DataTables\Facades\DataTables;
+use App\Exports\FeesReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 class FeesCollectionController extends Controller
 {
     //
@@ -131,5 +133,17 @@ public function history($studentId)
     return FeesCollection::where('student_id', $studentId)
         ->orderBy('date', 'desc')
         ->get(['date','amount','fees_type']);
+}
+
+public function export(Request $request)
+{
+    return Excel::download(
+        new FeesReportExport(
+            $request->from_date,
+            $request->to_date,
+            $request->fees_type
+        ),
+        'fees_report.xlsx'
+    );
 }
 }

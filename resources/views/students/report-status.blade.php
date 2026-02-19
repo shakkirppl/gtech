@@ -45,9 +45,11 @@
 </div>
 
 <div class="col-md-2 align-self-end">
-<button type="button" onclick="exportExcel()" class="btn btn-success btn-sm w-100">
-<i class="fa fa-file-excel-o"></i> Export
-</button>
+<a href="{{ route('students.status.export', request()->all()) }}"
+   class="btn btn-success btn-sm w-100">
+   <i class="fa fa-file-excel-o"></i> Export
+</a>
+
 </div>
 
 </form>

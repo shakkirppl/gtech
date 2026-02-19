@@ -165,24 +165,55 @@ class StudentController extends Controller
         }
     }
 
-    public function search(Request $request)
-{
-    $q = $request->q;
+//     public function search(Request $request)
+// {
+//     $q = $request->q;
 
-    return Student::select('id','reg_no','name','phone')
-        ->where(function ($query) use ($q) {
-            $query->where('name', 'like', "%{$q}%")
-                  ->orWhere('reg_no', 'like', "%{$q}%")
-                  ->orWhere('phone', 'like', "%{$q}%");
+//     return Student::select('id','reg_no','name','phone')
+//         ->where(function ($query) use ($q) {
+//             $query->where('name', 'like', "%{$q}%")
+//                   ->orWhere('reg_no', 'like', "%{$q}%")
+//                   ->orWhere('phone', 'like', "%{$q}%");
+//         })
+//         ->limit(20)
+//         ->get()
+//         ->map(function ($s) {
+//             return [
+//                 'id'   => $s->id,
+//                 'text' => "{$s->id} | {$s->reg_no} | {$s->name} | {$s->phone}"
+//             ];
+//         });
+// }
+
+public function search(Request $request)
+{
+    $search = $request->q;
+
+    $students = Student::with('course')
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('reg_no', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhereHas('course', function ($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
         })
         ->limit(20)
-        ->get()
-        ->map(function ($s) {
-            return [
-                'id'   => $s->id,
-                'text' => "{$s->id} | {$s->reg_no} | {$s->name} | {$s->phone}"
-            ];
-        });
+        ->get();
+
+    $formatted = $students->map(function ($student) {
+        return [
+            'id' => $student->id,
+            'text' => $student->name . ' | ' 
+                    . $student->reg_no . ' | ' 
+                    . $student->phone . ' | Course: ' 
+                    . ($student->course->name ?? 'N/A'),
+        ];
+    });
+
+    return response()->json($formatted);
 }
 
     public function show($id)

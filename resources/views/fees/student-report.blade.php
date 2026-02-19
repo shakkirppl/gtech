@@ -26,9 +26,11 @@
     </div>
 </form>
 <div class="col-md-2 align-self-end">
-<button type="button" id="exportBtn" class="btn btn-success btn-sm w-100">
-    <i class="fa fa-file-excel-o"></i> Export
-</button>
+<a href="{{ route('fees.report.student.export', request()->query()) }}"
+   class="btn btn-success btn-sm w-100">
+   <i class="fa fa-file-excel-o"></i> Export All
+</a>
+
 </div>
 <div class="table-responsive">
 <table class="table table-bordered table-striped" id="student-table">

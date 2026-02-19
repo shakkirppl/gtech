@@ -76,6 +76,82 @@ class FeesReportController extends Controller
 
     return view('fees.student-report', compact('students'));
 }
+public function studentWiseExport(Request $request)
+{
+    $query = Student::with(['course', 'scheme']);
+
+    // Apply same search filter
+    if ($request->filled('search')) {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%$search%")
+              ->orWhere('reg_no', 'like', "%$search%")
+              ->orWhereHas('course', function ($q2) use ($search) {
+                  $q2->where('name', 'like', "%$search%");
+              });
+        });
+    }
+
+    $filename = "student_fees_report_" . now()->format('Ymd_His') . ".csv";
+
+    return response()->stream(function () use ($query) {
+
+        $handle = fopen('php://output', 'w');
+
+        // ✅ Add UTF-8 BOM (Fix Excel Arabic/Unicode issue)
+        fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+
+        // Headings
+        fputcsv($handle, [
+            'Sl No',
+            'Reg No',
+            'Name',
+            'Mobile',
+            'DOJ',
+            'Course',
+            'Scheme',
+            'Total Fee',
+            'Paid',
+            'Balance',
+            'Status'
+        ]);
+
+        $sl = 1;
+
+        $query->orderBy('id', 'desc')
+              ->chunk(500, function ($students) use ($handle, &$sl) {
+
+            foreach ($students as $student) {
+
+                $paid = $student->fees_collections()->sum('amount');
+                $balance = $student->total_fees - $paid;
+
+                fputcsv($handle, [
+                    $sl++,
+                    $student->reg_no,
+                    $student->name,
+                    $student->phone,
+                    optional($student->admission_date)
+                        ? \Carbon\Carbon::parse($student->admission_date)->format('Y-m-d')
+                        : '',
+                    $student->course->name ?? '',
+                    $student->scheme->name ?? '',
+                    number_format($student->total_fees, 2),
+                    number_format($paid, 2),
+                    number_format($balance, 2),
+                    $student->status
+                ]);
+            }
+        });
+
+        fclose($handle);
+
+    }, 200, [
+        "Content-Type" => "text/csv",
+        "Content-Disposition" => "attachment; filename={$filename}",
+    ]);
+}
 
 public function studentView(Request $request, $id)
 {

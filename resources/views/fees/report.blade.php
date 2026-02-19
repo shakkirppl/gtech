@@ -53,20 +53,28 @@ thead th {
 
 </form>
 <div class="col-md-2 align-self-end">
-<button type="button" id="exportBtn" class="btn btn-success btn-sm w-100">
-    <i class="fa fa-file-excel-o"></i> Export
-</button>
+<a href="{{ route('fees.report.export', request()->query()) }}" 
+   class="btn btn-success btn-sm w-100">
+    <i class="fa fa-file-excel-o"></i> Export All
+</a>
+
 </div>
 @if(isset($reports))
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6>Total Amount</h6>
+                <h5 class="text-danger">
+                    {{ number_format($total, 2) }}
+                </h5>
+            </div>
+        </div>
+    </div>
 <div class="table-responsive">
 <table class="table table-bordered" id="student-table">
     <thead class="table-light">
-          <!-- Total Row at Top -->
-    <tr style="background-color:#f8f9fa; font-weight:bold;">
-        <th colspan="10" class="text-end">Total</th>
-        <th class="text-end">{{ number_format($total, 2) }}</th>
-    </tr>
-
+        
     <!-- Column Header Row -->
         <tr>
             <th>#</th>

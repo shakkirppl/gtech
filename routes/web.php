@@ -73,6 +73,8 @@ Route::delete('/students/{student}',[StudentController::class, 'destroy'])->name
 
 Route::get('/students/search', [StudentController::class, 'search'])->name('students.search');
 Route::get('/students/{id}', [StudentController::class, 'show'])->name('students.show');
+Route::get('/fees/report/export', [FeesCollectionController::class, 'export'])
+    ->name('fees.report.export');
 
 Route::get('fees', [FeesCollectionController::class,'index'])->name('fees.index');
 Route::get('fees/create', [FeesCollectionController::class,'create'])->name('fees.create');
@@ -97,12 +99,23 @@ Route::get('/fees-report', [FeesReportController::class,'index'])
 //     ->name('students.search');
 Route::get('/fees-report/student-wise', [FeesReportController::class, 'studentWise'])
     ->name('fees.report.student');
+    Route::get('/fees/student-report/export', 
+    [FeesReportController::class, 'studentWiseExport'])
+    ->name('fees.report.student.export');
 
 Route::get('/student-report/date-wise', [StudentReportController::class, 'dateWise'])
     ->name('student.report.date');
+    Route::get('/students/report-date/export',
+    [StudentReportController::class, 'dateWiseExport'])
+    ->name('students.report-date.export');
+
 
 Route::get('/student-report/status-wise', [StudentReportController::class, 'statusWise'])
     ->name('student.report.status');
+    Route::get('students/status-wise/export',
+    [StudentReportController::class, 'statusWiseExport']
+)->name('students.status.export');
+
     
 Route::patch('/students/{student}/status', [StudentController::class, 'updateStatus'])
     ->name('students.status');

@@ -36,9 +36,10 @@
 
 </form>
 <div class="col-md-2 align-self-end">
-<button type="button" onclick="exportExcel()" class="btn btn-success btn-sm w-100">
-<i class="fa fa-file-excel-o"></i> Export
-</button>
+<a href="{{ route('students.report-date.export', request()->query()) }}"
+   class="btn btn-success btn-sm w-100">
+   <i class="fa fa-file-excel-o"></i> Export All
+</a>
 </div>
 @if($students->count())
 <div class="row mb-3">

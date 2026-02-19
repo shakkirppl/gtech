@@ -147,7 +147,7 @@ $(document).ready(function () {
        STUDENT SELECT (Select2)
     ================================ */
     $('#student').select2({
-        placeholder: "Search student (name / reg / phone)",
+        placeholder: "Search student (name / reg / phone / course)",
         width: '100%',
         minimumInputLength: 2,
         ajax: {
