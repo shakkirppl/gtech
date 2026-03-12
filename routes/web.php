@@ -116,6 +116,12 @@ Route::get('/student-report/status-wise', [StudentReportController::class, 'stat
     [StudentReportController::class, 'statusWiseExport']
 )->name('students.status.export');
 
+Route::get('/student-report/course-wise', [StudentReportController::class, 'courseWise'])
+    ->name('student.report.course');
+    Route::get('students/course-wise/export',
+    [StudentReportController::class, 'courseWiseExport']
+)->name('students.course.export');
+
     
 Route::patch('/students/{student}/status', [StudentController::class, 'updateStatus'])
     ->name('students.status');

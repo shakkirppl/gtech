@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
-
+use App\Models\FeesCollection;
 class StudentReportController extends Controller
 {
     /* =========================
@@ -305,6 +305,153 @@ public function statusWiseExport(Request $request)
         });
 
         // ✅ Totals Row
+        fputcsv($handle, []);
+        fputcsv($handle, [
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            'TOTAL',
+            $grandTotal,
+            $grandPaid,
+            $grandTotal - $grandPaid,
+            ''
+        ]);
+
+        fclose($handle);
+
+    }, $filename, [
+        "Content-Type" => "text/csv; charset=UTF-8",
+    ]);
+}
+
+// Course Wise Report
+public function courseWise(Request $request)
+{
+    $query = Student::query();
+
+    // Status filter
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Date filter
+    if ($request->filled('from_date') && $request->filled('to_date')) {
+        $query->whereBetween('admission_date', [
+            $request->from_date,
+            $request->to_date
+        ]);
+    }
+
+    // 🔹 TOTAL COURSE FEE
+    $total_fee = (clone $query)->sum('course_fee');
+
+    // 🔹 TOTAL PAID (only course_fee type)
+    $studentIds = (clone $query)->pluck('id');
+
+    $total_paid = FeesCollection::whereIn('student_id', $studentIds)
+        ->where('fees_type', 'course_fee')
+        ->sum('amount');
+
+    // 🔹 BALANCE
+    $total_balance = $total_fee - $total_paid;
+
+    // 🔹 Student List
+    $students = $query->with(['course', 'scheme'])
+        ->withSum([
+            'fees_collections as paid_amount' => function ($q) {
+                $q->where('fees_type', 'course_fee');
+            }
+        ], 'amount')
+        ->orderBy('name')
+        ->paginate(25)
+        ->withQueryString();
+
+    return view('students.report-course', compact(
+        'students',
+        'total_fee',
+        'total_paid',
+        'total_balance'
+    ))->with($request->only('status'));
+}
+
+public function courseWiseExport(Request $request)
+{
+    $query = Student::query()
+        ->with(['course:id,name', 'scheme:id,name'])
+        ->withSum([
+            'fees_collections as paid_amount' => function ($q) {
+                $q->where('fees_type', 'course_fee');
+            }
+        ], 'amount');
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    if ($request->filled('from_date') && $request->filled('to_date')) {
+        $query->whereBetween('admission_date', [
+            $request->from_date,
+            $request->to_date
+        ]);
+    }
+
+    $filename = "student_course_fee_report_" . now()->format('Ymd_His') . ".csv";
+
+    return response()->streamDownload(function () use ($query) {
+
+        $handle = fopen('php://output', 'w');
+
+        fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+
+        fputcsv($handle, [
+            'Sl No',
+            'Student ID',
+            'Reg No',
+            'Name',
+            'Course',
+            'Scheme',
+            'Admission Date',
+            'Course Fee',
+            'Paid',
+            'Balance',
+            'Status'
+        ]);
+
+        $sl = 1;
+        $grandTotal = 0;
+        $grandPaid = 0;
+
+        $query->orderBy('name')
+            ->chunk(500, function ($students) use ($handle, &$sl, &$grandTotal, &$grandPaid) {
+
+                foreach ($students as $s) {
+
+                    $total_fee = $s->course_fee;
+                    $paid = $s->paid_amount ?? 0;
+                    $balance = $total_fee - $paid;
+
+                    $grandTotal += $total_fee;
+                    $grandPaid += $paid;
+
+                    fputcsv($handle, [
+                        $sl++,
+                        $s->id,
+                        $s->reg_no,
+                        $s->name,
+                        $s->course->name ?? '',
+                        $s->scheme->name ?? '',
+                        optional($s->admission_date)->format('d-m-Y'),
+                        $total_fee,
+                        $paid,
+                        $balance,
+                        ucfirst($s->status),
+                    ]);
+                }
+            });
+
         fputcsv($handle, []);
         fputcsv($handle, [
             '',

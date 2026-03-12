@@ -60,6 +60,9 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url('student-report/status-wise') }}">Student-Status Wise</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url('student-report/course-wise') }}">Student-Course Wise</a>
+          </li>
         </ul>
       </div>
     </li>
