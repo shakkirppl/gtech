@@ -38,8 +38,7 @@ public function index(Request $request)
    public function create()
 {
     // Voucher auto-generate
-    $voucherNo = FeesCollection::max('id') + 1;
-
+     $voucherNo = FeesCollection::withTrashed()->max('id') + 1;
     return view('fees.create', compact('voucherNo'));
 }
 
